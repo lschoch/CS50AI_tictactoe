@@ -64,7 +64,10 @@ def result(board, action):
     if action not in actions(board):
         raise Exception("Invalid action")
     board_copy = copy.deepcopy(board)
-    board_copy[action[0]][action[1]] = player(board)
+    if player(board) == X:
+        board_copy[action[0]][action[1]] = X
+    else:
+        board_copy[action[0]][action[1]] = O
     return board_copy
 
 
@@ -122,8 +125,62 @@ def utility(board):
             return 0
 
 
+def max_value(board):
+    v = -math.inf
+    if terminal(board):
+        return utility(board)
+    for action in actions(board):
+        minv = min_value(result(board, action))
+        v = max(v, minv)
+    return v
+
+
+def min_value(board):
+    v = math.inf
+    if terminal(board):
+        return utility(board)
+    for action in actions(board):
+        maxv = max_value(result(board, action))
+        v = min(v, maxv)
+    return v
+
+
+def get_x_action(board):
+    lst = []
+    for action in actions(board):
+        res = result(board, action)
+        lst.append((action, max_value(res)))
+    optimal_action = lst[0][0]
+    for i in range(1, len(lst)):
+        if lst[i][1] > lst[i - 1][1]:
+            optimal_action = lst[i][0]
+    board = result(board, optimal_action)
+    return optimal_action
+
+
+def get_o_action(board):
+    lst = []
+    for action in actions(board):
+        res = result(board, action)
+        lst.append((action, min_value(res)))
+    optimal_action = lst[0][0]
+    for i in range(1, len(lst)):
+        if lst[i][1] < lst[i - 1][1]:
+            optimal_action = lst[i][0]
+            # board = copy.deepcopy(result(board, optimal_action))
+    return optimal_action
+
+
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    if terminal(board):
+        return None
+
+    if player(board) == X:
+        optimal_action = get_x_action(board)
+    elif player(board) == O:
+        optimal_action = get_o_action(board)
+
+    return optimal_action
