@@ -209,7 +209,7 @@ def get_x_action(board):
         lst.append((action, max_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
-        if lst[i][1] > lst[i - 1][1]:
+        if lst[i][1] < lst[i - 1][1]:
             optimal_action = lst[i][0]
     board = result(board, optimal_action)
     return optimal_action
@@ -229,7 +229,7 @@ def get_o_action(board):
         lst.append((action, min_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
-        if lst[i][1] < lst[i - 1][1]:
+        if lst[i][1] > lst[i - 1][1]:
             optimal_action = lst[i][0]
     board = result(board, optimal_action)
     return optimal_action
