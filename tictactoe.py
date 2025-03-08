@@ -195,46 +195,6 @@ def min_value(board):
     return v
 
 
-def get_x_action(board):
-    lst = []
-    for action in actions(board):
-        res = result(board, action)
-        if winner(res):
-            return action
-    for action in actions(board):
-        impwin = impending_winner(res)
-        if impwin:
-            return impwin
-    for action in actions(board):
-        lst.append((action, max_value(res)))
-    optimal_action = lst[0][0]
-    for i in range(1, len(lst)):
-        if lst[i][1] < lst[i - 1][1]:
-            optimal_action = lst[i][0]
-    board = result(board, optimal_action)
-    return optimal_action
-
-
-def get_o_action(board):
-    lst = []
-    for action in actions(board):
-        res = result(board, action)
-        if winner(res):
-            return action
-    for action in actions(board):
-        impwin = impending_winner(res)
-        if impwin:
-            return impwin
-    for action in actions(board):
-        lst.append((action, min_value(res)))
-    optimal_action = lst[0][0]
-    for i in range(1, len(lst)):
-        if lst[i][1] > lst[i - 1][1]:
-            optimal_action = lst[i][0]
-    board = result(board, optimal_action)
-    return optimal_action
-
-
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
@@ -242,9 +202,30 @@ def minimax(board):
     if terminal(board):
         return None
 
-    if player(board) == X:
-        optimal_action = get_x_action(board)
-    elif player(board) == O:
-        optimal_action = get_o_action(board)
-
+    lst = []
+    # Check if any action would be a winner.
+    for action in actions(board):
+        res = result(board, action)
+        if winner(res):
+            return action
+    # Would any action result in impending winner for the opponent?
+    for action in actions(board):
+        res = result(board, action)
+        impwin = impending_winner(res)
+        if impwin:
+            return impwin
+    # Create list of values from the min/max functions.
+    for action in actions(board):
+        if player(board) == X:
+            lst.append((action, min_value(board)))
+        else:
+            lst.append((action, max_value(board)))
+    optimal_action = lst[0][0]
+    for i in range(1, len(lst)):
+        if player(board) == X:
+            if lst[i][1] > lst[i - 1][1]:
+                optimal_action = lst[i][0]
+        else:
+            if lst[i][1] < lst[i - 1][1]:
+                optimal_action = lst[i][0]
     return optimal_action
