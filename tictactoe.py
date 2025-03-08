@@ -98,6 +98,55 @@ def winner(board):
     return None
 
 
+def impending_winner(board):  # noqa: PLR0911
+    """
+    Returns action to block an impending winner.
+    """
+    playr = player(board)
+    # Check rows for impending winner.
+    for i in range(3):
+        row = []
+        for j in range(3):
+            row.append(board[i][j])
+        counts = Counter(row)
+        if counts[playr] == 2 and None in row:
+            indx = row.index(None)
+            return (i, indx)
+    # Check columns for impending winner.
+    for i in range(3):
+        col = []
+        for j in range(3):
+            col.append(board[j][i])
+        counts = Counter(col)
+        if counts[playr] == 2 and None in col:
+            indx = col.index(None)
+            return (indx, i)
+    # Check for diagonals impending winner.
+    diag1 = [board[0][0], board[1][1], board[2][2]]
+    diag2 = [board[2][0], board[1][1], board[0][2]]
+    counts = Counter(diag1)
+    if counts[playr] == 2 and None in diag1:
+        indx = diag1.index(None)
+        match indx:
+            case 0:
+                return (0, 0)
+            case 1:
+                return (1, 1)
+            case 2:
+                return (2, 2)
+    counts = Counter(diag2)
+    if counts[playr] == 2 and None in diag2:
+        indx = diag2.index(None)
+        match indx:
+            case 0:
+                return (2, 0)
+            case 1:
+                return (1, 1)
+            case 2:
+                return (0, 2)
+    return None
+
+
 def terminal(board):
     """
     Returns True if game is over, False otherwise.
@@ -149,6 +198,8 @@ def get_x_action(board):
     lst = []
     for action in actions(board):
         res = result(board, action)
+        if impending_winner(res):
+            return impending_winner(res)
         lst.append((action, max_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
@@ -162,12 +213,14 @@ def get_o_action(board):
     lst = []
     for action in actions(board):
         res = result(board, action)
+        impwin = impending_winner(res)
+        if impwin:
+            return impwin
         lst.append((action, min_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
         if lst[i][1] < lst[i - 1][1]:
             optimal_action = lst[i][0]
-            # board = copy.deepcopy(result(board, optimal_action))
     return optimal_action
 
 
