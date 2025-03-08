@@ -103,6 +103,7 @@ def impending_winner(board):  # noqa: PLR0911
     Returns action to block an impending winner.
     """
     playr = player(board)
+    opponent = O if playr == X else X
     # Check rows for impending winner.
     for i in range(3):
         row = []
@@ -122,6 +123,7 @@ def impending_winner(board):  # noqa: PLR0911
             indx = col.index(None)
             return (indx, i)
     # Check for diagonals impending winner.
+    diag1, diag2 = [], []
     diag1 = [board[0][0], board[1][1], board[2][2]]
     diag2 = [board[2][0], board[1][1], board[0][2]]
     counts = Counter(diag1)
@@ -197,9 +199,12 @@ def min_value(board):
 def get_x_action(board):
     lst = []
     for action in actions(board):
+        if winner(result(board, action)):
+            return action
         res = result(board, action)
-        if impending_winner(res):
-            return impending_winner(res)
+        impwin = impending_winner(res)
+        if impwin:
+            return impwin
         lst.append((action, max_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
@@ -212,6 +217,8 @@ def get_x_action(board):
 def get_o_action(board):
     lst = []
     for action in actions(board):
+        if winner(result(board, action)):
+            return action
         res = result(board, action)
         impwin = impending_winner(res)
         if impwin:
