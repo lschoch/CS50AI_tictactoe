@@ -97,6 +97,32 @@ def winner(board):
             return O
     return None
 
+def impending_winner(board):
+    """
+    Returns action needed for winner if their is
+    an impending winner.
+    """
+    # Check rows for winner.
+    for row in board:
+        counts = Counter(row)
+        if counts[X] or counts[O] == 2:
+            for item in row:
+                if not item:
+                    return item
+    # Check columns.
+    c0 = [board[0][0], board[1][0], board[2][0]]
+    c1 = [board[0][1], board[1][1], board[2][1]]
+    c2 = [board[0][2], board[1][2], board[2][2]]
+    # Check diagonals.
+    d0 = [board[0][0], board[1][1], board[2][2]]
+    d1 = [board[2][0], board[1][1], board[0][2]]
+    for c in [c0, c1, c2, d0, d1]:
+        counts = Counter(c)
+        if counts[X] or counts[O] == 2:
+            for item in c:
+                if not item:
+                    return item
+    return None
 
 def terminal(board):
     """
@@ -149,6 +175,9 @@ def get_x_action(board):
     lst = []
     for action in actions(board):
         res = result(board, action)
+        if impending_winner(res):
+            print("impending winner")
+            return impending_winner(res)
         lst.append((action, max_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
@@ -162,12 +191,13 @@ def get_o_action(board):
     lst = []
     for action in actions(board):
         res = result(board, action)
+        if impending_winner(res):
+            return impending_winner(res)
         lst.append((action, min_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
         if lst[i][1] < lst[i - 1][1]:
             optimal_action = lst[i][0]
-            # board = copy.deepcopy(result(board, optimal_action))
     return optimal_action
 
 
