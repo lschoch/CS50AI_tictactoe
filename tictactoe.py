@@ -103,6 +103,7 @@ def impending_winner(board):  # noqa: PLR0911
     Returns action to block an impending winner.
     """
     playr = player(board)
+    opponent = O if playr == X else X
     # Check rows for impending winner.
     for i in range(3):
         row = []
@@ -195,16 +196,11 @@ def min_value(board):
     return v
 
 
-def minimax(board):
-    """
-    Returns the optimal action for the current player on the board.
-    """
-    if terminal(board):
-        return None
-
+def get_x_action(board):
     lst = []
-    # Check if any action would be a winner.
     for action in actions(board):
+        if winner(result(board, action)):
+            return action
         res = result(board, action)
         impwin = impending_winner(res)
         if impwin:
@@ -221,6 +217,8 @@ def minimax(board):
 def get_o_action(board):
     lst = []
     for action in actions(board):
+        if winner(result(board, action)):
+            return action
         res = result(board, action)
         impwin = impending_winner(res)
         if impwin:
@@ -228,10 +226,21 @@ def get_o_action(board):
         lst.append((action, max_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
-        if player(board) == X:
-            if lst[i][1] > lst[i - 1][1]:
-                optimal_action = lst[i][0]
-        else:
-            if lst[i][1] < lst[i - 1][1]:
-                optimal_action = lst[i][0]
+        if lst[i][1] < lst[i - 1][1]:
+            optimal_action = lst[i][0]
+    return optimal_action
+
+
+def minimax(board):
+    """
+    Returns the optimal action for the current player on the board.
+    """
+    if terminal(board):
+        return None
+
+    if player(board) == X:
+        optimal_action = get_x_action(board)
+    elif player(board) == O:
+        optimal_action = get_o_action(board)
+
     return optimal_action
