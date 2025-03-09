@@ -206,20 +206,26 @@ def minimax(board):
     # Check if any action would be a winner.
     for action in actions(board):
         res = result(board, action)
-        if winner(res):
-            return action
-    # Would any action result in impending winner for the opponent?
+        impwin = impending_winner(res)
+        if impwin:
+            return impwin
+        lst.append((action, max_value(res)))
+    optimal_action = lst[0][0]
+    for i in range(1, len(lst)):
+        if lst[i][1] > lst[i - 1][1]:
+            optimal_action = lst[i][0]
+    board = result(board, optimal_action)
+    return optimal_action
+
+
+def get_o_action(board):
+    lst = []
     for action in actions(board):
         res = result(board, action)
         impwin = impending_winner(res)
         if impwin:
             return impwin
-    # Create list of values from the min/max functions.
-    for action in actions(board):
-        if player(board) == X:
-            lst.append((action, min_value(board)))
-        else:
-            lst.append((action, max_value(board)))
+        lst.append((action, min_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
         if player(board) == X:
