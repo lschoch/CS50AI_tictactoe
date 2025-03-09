@@ -196,7 +196,10 @@ def min_value(board):
 
 
 def get_x_action(board):
-    lst = []
+    # Opening move for X = center.
+    if board == initial_state():
+        return (0, 0)
+    # Check for winner, impending win by opponent.
     for action in actions(board):
         if winner(result(board, action)):
             return action
@@ -204,17 +207,23 @@ def get_x_action(board):
         impwin = impending_winner(res)
         if impwin:
             return impwin
-        lst.append((action, min_value(res)))
-    optimal_action = lst[0][0]
-    for i in range(1, len(lst)):
-        if lst[i][1] > lst[i - 1][1]:
-            optimal_action = lst[i][0]
-    board = result(board, optimal_action)
+    # Alpha-beta pruning.
+    v_temp = -math.inf
+    acts = list(actions(board))
+    for i in range(len(acts) - 1):
+        if max_value(result(board, acts[i + 1])) < v_temp:
+            continue
+        if min_value(result(board, acts[i])) > v_temp:
+            v_temp = min_value(result(board, acts[i]))
+            optimal_action = acts[i]
+    if min_value(result(board, acts[-1])) > v_temp:
+        optimal_action = acts[-1]
+
     return optimal_action
 
 
 def get_o_action(board):
-    lst = []
+    # Check for winner, impending win by opponent.
     for action in actions(board):
         if winner(result(board, action)):
             return action
@@ -222,11 +231,19 @@ def get_o_action(board):
         impwin = impending_winner(res)
         if impwin:
             return impwin
-        lst.append((action, max_value(res)))
-    optimal_action = lst[0][0]
-    for i in range(1, len(lst)):
-        if lst[i][1] < lst[i - 1][1]:
-            optimal_action = lst[i][0]
+    # Alpha-beta pruning.
+    v_temp = math.inf
+    acts = list(actions(board))
+    optimal_action = acts[0]
+    for i in range(len(acts) - 1):
+        if min_value(result(board, acts[i + 1])) > v_temp:
+            continue
+        if max_value(result(board, acts[i])) < v_temp:
+            v_temp = max_value(result(board, acts[i]))
+            optimal_action = acts[i]
+    if max_value(result(board, acts[-1])) < v_temp:
+        optimal_action = acts[-1]
+
     return optimal_action
 
 
