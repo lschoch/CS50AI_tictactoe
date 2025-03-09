@@ -103,7 +103,6 @@ def impending_winner(board):  # noqa: PLR0911
     Returns action to block an impending winner.
     """
     playr = player(board)
-    opponent = O if playr == X else X
     # Check rows for impending winner.
     for i in range(3):
         row = []
