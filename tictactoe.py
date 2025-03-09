@@ -225,7 +225,7 @@ def get_o_action(board):
         impwin = impending_winner(res)
         if impwin:
             return impwin
-        lst.append((action, min_value(res)))
+        lst.append((action, max_value(res)))
     optimal_action = lst[0][0]
     for i in range(1, len(lst)):
         if player(board) == X:
